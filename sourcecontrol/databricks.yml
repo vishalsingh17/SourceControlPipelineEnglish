@@ -1,0 +1,42 @@
+# This is a Databricks asset bundle definition for sourcecontrol.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: sourcecontrol
+  uuid: 4bb54066-676f-461a-b8c5-506aa179afd5
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-91ae70a4-d372.cloud.databricks.com
+    variables:
+      catalog: workspace
+      schema: ${workspace.current_user.short_name}
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-91ae70a4-d372.cloud.databricks.com
+      # We explicitly deploy to /Workspace/Users/vishal170997@gmail.com to make sure we only have a single copy.
+      root_path: /Workspace/Users/vishal170997@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: workspace
+      schema: prod
+    permissions:
+      - user_name: vishal170997@gmail.com
+        level: CAN_MANAGE
